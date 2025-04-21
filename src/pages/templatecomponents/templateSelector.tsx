@@ -1,7 +1,8 @@
-import { Col, FormGroup, Form, Label, Row } from "reactstrap";
+import { Col, FormGroup, Form, Label } from "reactstrap";
 import Select from "react-select";
 import SitemarkIcon from "../../components/SitemarkIcon";
 import { Typography, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 function TemplateSelector({
   firstLevelGroup,
@@ -14,6 +15,7 @@ function TemplateSelector({
   submitData,
   clearData,
 }) {
+  const navigate = useNavigate();
   return (
     <Col
       style={{
@@ -44,7 +46,6 @@ function TemplateSelector({
         </FormGroup>
         <FormGroup>
           <Label for="templateSelection">
-            {" "}
             <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
               Template Type
             </Typography>
@@ -74,6 +75,23 @@ function TemplateSelector({
             Clear
           </Button>
         </FormGroup>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            left: "10px",
+            textAlign: "center",
+          }}
+        >
+          <Button
+            variant="text"
+            color="primary"
+            onClick={() => navigate("/admin")}
+          >
+            Go to Admin Panel
+          </Button>
+        </div>
       </Form>
     </Col>
   );
