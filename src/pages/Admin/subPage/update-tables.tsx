@@ -1,47 +1,66 @@
-import { useState } from "react";
-import Box from "@mui/material/Box";
-import { Container } from "reactstrap";
+import { useState, useEffect } from "react";
+import { Container, FormGroup, Form, Label } from "reactstrap";
 import Select from "react-select";
-import { FormGroup, Form, Label } from "reactstrap";
-import { Typography } from "@mui/material";
 import axiosService from "../../../services/axiosService";
-import * as React from "react";
 import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Close";
 import {
-  GridRowModesModel,
-  GridRowModes,
   DataGrid,
   GridActionsCellItem,
+  GridRowModes,
+  GridRowModesModel,
   GridRowId,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 export default function UpdateTables() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [rowsData, setRowsData] = useState([]);
   const [mappingData, setMappingData] = useState({});
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const apiRef = useGridApiRef();
   const tableNames = [
     { id: 1, value: "CaseTypes", label: "Case Types" },
     { id: 2, value: "TemplateTypes", label: "Template Types" },
   ];
-  const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
-    {},
-  );
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [selectedRowId, setSelectedRowId] = React.useState<GridRowId | null>(
-    null,
-  );
-  React.useEffect(() => {
-    apiRef.current.autosizeColumns({ includeOutliers: true, expand: true });
-  }, [rowsData, apiRef, rowModesModel, selectedRowId]);
+
+  useEffect(() => {
+    apiRef.current?.autosizeColumns({ includeOutliers: true, expand: true });
+  }, [rowsData, rowModesModel]);
+
+  const handleEditClick = (id: GridRowId) => () => {
+    setRowModesModel((prevModel) => ({
+      ...prevModel,
+      [id]: { mode: GridRowModes.Edit },
+    }));
+  };
+
+  const handleSaveClick = (id: GridRowId) => () => {
+    setRowModesModel((prevModel) => ({
+      ...prevModel,
+      [id]: { mode: GridRowModes.View },
+    }));
+  };
+
+  const handleCancelClick = (id: GridRowId) => () => {
+    setRowModesModel((prevModel) => ({
+      ...prevModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    }));
+  };
+
+  const handleRowModesModelChange = (newModel: GridRowModesModel) => {
+    setRowModesModel(newModel);
+  };
+
+  const handleProcessRowUpdate = (newRow, oldRow) => {
+    setRowsData((prevRows) =>
+      prevRows.map((row) => (row.id === newRow.id ? {...newRow, updated: true} : row))
+    );
+    return newRow;
+  };
 
   const columns = {
     CaseTypes: [
@@ -50,29 +69,41 @@ export default function UpdateTables() {
       {
         field: "isActive",
         headerName: "Is Active",
-        // width: 100,
         type: "singleSelect",
-        valueGetter: (value) => {
-          if (value === "0" || value === 0) {
-            return "Disabled";
-          } else {
-            return "Active";
-          }
-        },
-        valueOptions: [0, 1],
+        editable: true,
+        valueOptions: [
+          { value: 1, label: "Active" },
+          { value: 0, label: "Disabled" },
+        ],
+        valueFormatter: ({ value }) =>
+          value === 0 || value === "0" ? "Disabled" : "Active",
       },
       {
         field: "actions",
         type: "actions",
         headerName: "Actions",
-        // width: 100,
-        cellClassName: "actions",
         getActions: ({ id }) => {
+          const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+          if (isInEditMode) {
+            return [
+              <GridActionsCellItem
+                icon={<SaveIcon />}
+                label="Save"
+                onClick={handleSaveClick(id)}
+                color="primary"
+              />,
+              <GridActionsCellItem
+                icon={<CancelIcon />}
+                label="Cancel"
+                onClick={handleCancelClick(id)}
+                color="inherit"
+              />,
+            ];
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
               label="Edit"
-              className="textPrimary"
               onClick={handleEditClick(id)}
               color="inherit"
             />,
@@ -81,50 +112,61 @@ export default function UpdateTables() {
       },
     ],
     TemplateTypes: [
-      { field: "id", headerName: "ID", width: 90, editable: false },
+      { field: "id", headerName: "ID", editable: false },
       {
         field: "caseTypeid",
         headerName: "Case Type",
-        // width: 150,
         type: "singleSelect",
-        valueOptions: Object.values(mappingData),
-        valueGetter: (value) => {
-          console.log(value, mappingData);
-          return mappingData[value];
-        },
+        editable: true,
+        valueOptions: Object.entries(mappingData).map(([id, label]) => ({
+          value: id,
+          label: label,
+        })),
+        valueFormatter: ( value ) =>  mappingData[value] || value,
       },
       {
         field: "templateName",
         headerName: "Template Name",
-        // width: 150,
         editable: true,
       },
       {
         field: "isActive",
         headerName: "Is Active",
-        // width: 100,
         type: "singleSelect",
-        valueGetter: (value) => {
-          if (value === "0" || value === 0) {
-            return "Disabled";
-          } else {
-            return "Active";
-          }
-        },
-        valueOptions: ["Active", "Disabled"],
+        editable: true,
+        valueOptions: [
+          { value: 1, label: "Active" },
+          { value: 0, label: "Disabled" },
+        ],
+        valueFormatter: ({ value }) =>
+          value === 0 || value === "0" ? "Disabled" : "Active",
       },
       {
         field: "actions",
         type: "actions",
         headerName: "Actions",
-        // width: 100,
-        cellClassName: "actions",
         getActions: ({ id }) => {
+          const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+          if (isInEditMode) {
+            return [
+              <GridActionsCellItem
+                icon={<SaveIcon />}
+                label="Save"
+                onClick={handleSaveClick(id)}
+                color="primary"
+              />,
+              <GridActionsCellItem
+                icon={<CancelIcon />}
+                label="Cancel"
+                onClick={handleCancelClick(id)}
+                color="inherit"
+              />,
+            ];
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
               label="Edit"
-              className="textPrimary"
               onClick={handleEditClick(id)}
               color="inherit"
             />,
@@ -139,43 +181,21 @@ export default function UpdateTables() {
     axiosService
       .processGetRequest(`http://127.0.0.1:5000/template/getValues`)
       .then((resp) => {
-        console.log(resp);
         const result = resp["CaseTypes"].reduce((acc, item) => {
           acc[item.id] = item.label;
           return acc;
         }, {});
+        console.log("result", result)
         setMappingData(result);
       });
+
     axiosService
       .processGetRequest(`http://127.0.0.1:5000/template/${value.value}`)
       .then((resp) => {
         setRowsData(resp);
-        apiRef.current?.updateRows(resp);
-        apiRef.current?.autosizeColumns({
-          expand: true,
-        });
       });
   }
-
-  const handleDialogOpen = (id: GridRowId) => {
-    setSelectedRowId(id);
-    setOpenDialog(true);
-  };
-
-  const handleDialogClose = () => {
-    setOpenDialog(false);
-    setSelectedRowId(null);
-  };
-
-  const handleEditClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-    handleDialogOpen(id);
-  };
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    setRowModesModel(newRowModesModel);
-  };
-
+  console.log("Rows", rowsData)
   return (
     <Container
       fluid
@@ -193,7 +213,7 @@ export default function UpdateTables() {
         <FormGroup>
           <Label for="firstLevelSelection">
             <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
-              Case Type
+              Table Selection
             </Typography>
           </Label>
           <Select
@@ -206,39 +226,19 @@ export default function UpdateTables() {
         </FormGroup>
       </Form>
 
-      <Box sx={{ height: 300, width: "80%" }}>
+      <Box sx={{ height: 400, width: "80%" }}>
+        <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+          Data Grid
+        </Typography>
         <DataGrid
           apiRef={apiRef}
           rows={rowsData}
-          columns={selectedOption != null ? columns[selectedOption.value] : []}
+          columns={selectedOption ? columns[selectedOption.value] : []}
           editMode="row"
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
+          processRowUpdate={handleProcessRowUpdate}
         />
-
-        {/* Popup Dialog */}
-        <Dialog open={openDialog} onClose={handleDialogClose}>
-          <DialogTitle>Edit Row</DialogTitle>
-          <DialogContent>
-            {selectedRowId !== null ? (
-              <div>You're now editing row ID: {selectedRowId}</div>
-            ) : (
-              <div>No row selected</div>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleDialogClose} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleDialogClose}
-              color="primary"
-              variant="contained"
-            >
-              Save
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </Container>
   );
