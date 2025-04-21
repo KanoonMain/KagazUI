@@ -1,7 +1,9 @@
 import SideMenu from "./components/SideMenu";
 import { useLocation } from "react-router-dom";
 import UpdateTables from "./subPage/update-tables";
-import { Box, Stack } from "@mui/material";
+import UpdateMetaData from "./subPage/update-metadata";
+import UploadFiles from "./subPage/upload-files";
+import { Box } from "@mui/material";
 
 export default function AdminMain() {
   let location = useLocation();
@@ -15,8 +17,8 @@ export default function AdminMain() {
           <Box component="main">
             {location.pathname === "/admin" && <div>Landing Page</div>}
             {location.pathname === "/admin/tables" && <UpdateTables />}
-            {location.pathname === "/admin/files" && <UpdateTables />}
-            {location.pathname === "/admin/metadata" && <UpdateTables />}
+            {location.pathname === "/admin/files" && <UploadFiles />}
+            {location.pathname === "/admin/metadata" && <UpdateMetaData />}
           </Box>{" "}
         </div>
       </Box>

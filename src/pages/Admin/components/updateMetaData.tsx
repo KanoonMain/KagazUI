@@ -1,11 +1,5 @@
-import { useEffect, useState } from "react";
-import {
-  Grid,
-  Button,
-  FormLabel,
-  OutlinedInput,
-  CircularProgress,
-} from "@mui/material";
+import { useState, useEffect } from "react";
+import { Grid, Button, FormLabel, OutlinedInput } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const FormGrid = styled(Grid)(() => ({
@@ -13,35 +7,16 @@ const FormGrid = styled(Grid)(() => ({
   flexDirection: "column",
 }));
 
-type AddressFormProps = {
+type UpdateMetaDataProps = {
   formFields: Record<string, string>;
-  setFormData: (a: any) => void;
-  isLoading: boolean;
   generateTemplate: (a: any) => void;
-  isGenerate?: boolean;
 };
 
-export default function AddressForm({
+export default function UpdateMetaData({
   formFields,
-  setFormData,
-  isLoading,
   generateTemplate,
-  isGenerate = true,
-}: AddressFormProps) {
-  const [formValues, setFormValues] = useState(
-    Object.keys(formFields).reduce(
-      (acc, key) => {
-        acc[key] = "";
-        return acc;
-      },
-      {} as Record<string, string>,
-    ),
-  );
-
-  useEffect(() => {
-    setFormData(formValues);
-  }, [formValues]);
-
+}: UpdateMetaDataProps) {
+  const [formValues, setFormValues] = useState(formFields);
   const handleChange =
     (key: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
       setFormValues((prev) => ({
@@ -50,18 +25,19 @@ export default function AddressForm({
       }));
     };
 
+  useEffect(() => {
+    setFormValues(formFields);
+  }, [formFields]);
   return (
     <Grid container spacing={3}>
-      {Object.entries(formFields).map(([key, label]) => (
+      {Object.entries(formFields).map(([key]) => (
         <FormGrid size={{ xs: 12, md: 6 }} key={key}>
           <FormLabel htmlFor={key} required>
-            {label}
+            {key}
           </FormLabel>
           <OutlinedInput
             id={key}
             name={key}
-            placeholder={label}
-            autoComplete={key}
             required
             size="small"
             value={formValues[key]}
@@ -73,15 +49,10 @@ export default function AddressForm({
         <Button
           variant="contained"
           sx={{ marginTop: "15px" }}
-          onClick={generateTemplate}
+          onClick={() => generateTemplate(formValues)}
         >
-          {isGenerate ? "Generate Template" : "Update Data"}
+          Update Data
         </Button>
-      )}
-      {isLoading && (
-        <div>
-          <CircularProgress /> Fetching File
-        </div>
       )}
     </Grid>
   );

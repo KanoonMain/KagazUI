@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, FormGroup, Form, Label, Button } from "reactstrap";
+import { Container, FormGroup, Form, Label, Button, Alert } from "reactstrap";
 import Select from "react-select";
 import axiosService from "../../../services/axiosService";
 import EditIcon from "@mui/icons-material/Edit";
@@ -25,6 +25,7 @@ export default function UpdateTables() {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const apiRef = useGridApiRef();
   const [isUpdated, setIsUpdated] = useState(false);
+  const [message, setMessage] = useState("");
 
   const tableNames = [
     { id: 1, value: "CaseTypes", label: "Case Types" },
@@ -107,6 +108,34 @@ export default function UpdateTables() {
     );
   }
 
+  function updateTable() {
+    const filtered = rowsData.filter(
+      (obj) => "updated" in obj || "added" in obj,
+    );
+
+    axiosService
+      .processPostRequest(
+        `http://127.0.0.1:5000/template/${selectedOption.value}`,
+        filtered,
+      )
+      .then(async (resp) => {
+        setIsUpdated(false);
+        try {
+          const { added = 0, updated = 0 } = resp; // default to 0 if missing
+          setMessage(`Added ${added} Rows and Updated ${updated} Rows`);
+          await updateTableName(selectedOption)
+        } catch (e) {
+          setMessage("An error occurred while processing the response.");
+          console.error(e);
+        }
+      })
+      .catch((error) => {
+        setMessage("Failed to update the table. Please try again.");
+        console.error(error);
+      });
+      updateTableName(selectedOption)
+  }
+
   const columns = {
     CaseTypes: [
       { field: "id", headerName: "ID", editable: false },
@@ -126,6 +155,11 @@ export default function UpdateTables() {
           } else {
             return "Active";
           }
+        },
+        renderCell: (params) => {
+          return params.value === 1 || params.value === "1"
+            ? "Active"
+            : "Disabled";
         },
       },
       {
@@ -190,6 +224,11 @@ export default function UpdateTables() {
         ],
         valueFormatter: ({ value }) =>
           value === 0 || value === "0" ? "Disabled" : "Active",
+        renderCell: (params) => {
+          return params.value === 1 || params.value === "1"
+            ? "Active"
+            : "Disabled";
+        },
       },
       {
         field: "actions",
@@ -228,6 +267,7 @@ export default function UpdateTables() {
 
   function updateTableName(value) {
     setSelectedOption(value);
+    setMessage("");
     axiosService
       .processGetRequest(`http://127.0.0.1:5000/template/getValues`)
       .then((resp) => {
@@ -245,8 +285,6 @@ export default function UpdateTables() {
         setRowsData(resp);
       });
   }
-  console.log("Rows", rowsData);
-  console.log("rowModesModel", rowModesModel);
   return (
     <Container
       fluid
@@ -276,7 +314,7 @@ export default function UpdateTables() {
           />
         </FormGroup>
       </Form>
-
+      {message != "" && <Alert severity="info">{message}.</Alert>}
       <Box sx={{ height: 500, width: "80%" }}>
         <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
           Data Grid
@@ -295,7 +333,7 @@ export default function UpdateTables() {
         {isUpdated && (
           <Button
             color="primary"
-            onClick={() => alert("Test")}
+            onClick={updateTable}
             style={{ marginTop: "15px" }}
           >
             Update Changes
