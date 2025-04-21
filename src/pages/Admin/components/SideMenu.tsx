@@ -79,7 +79,7 @@ export default function SideMenu() {
             Test
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
-           Test
+            Test
           </Typography>
         </Box>
         <OptionsMenu />

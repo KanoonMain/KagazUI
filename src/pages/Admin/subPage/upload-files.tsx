@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Container, Button, Input, Spinner } from "reactstrap";
+import {
+  Box,
+  Grid,
+  Typography,
+  Button,
+  CircularProgress,
+  Paper,
+} from "@mui/material";
 import { renderAsync } from "docx-preview";
 import axiosService from "../../../services/axiosService";
 import Select from "react-select";
@@ -8,38 +15,41 @@ export default function UploadFiles() {
   const [file, setFile] = useState(null);
   const [previewName, setPreviewName] = useState("");
   const [uploading, setUploading] = useState(false);
-  const viewerRef = useRef(null);
-   const [selectedOption, setSelectedOption] = useState(null);
-    const [selectedTemplateOption, setSelectedTemplateOption] = useState(null);
-    const [dataSubmitted, setDataSubmitted] = useState(false);
-    const [firstLevelGroup, setFirstLevelGroup] = useState([]);
-    const [secondLevelGroup, setSecondLevelGroup] = useState({});
-    // const [message, setMessage] = useState("");
-  
-    useEffect(() => {
-      if (firstLevelGroup.length == 0) {
-        getDropDownDataData();
-      }
-    }, []);
-  
-    const getDropDownDataData = async () => {
-      axiosService.processGetRequest(
-        "http://127.0.0.1:5000/template/list-templates",
-      ).then((resp) => {
-        setFirstLevelGroup(resp["CaseTypes"]);
-        setSecondLevelGroup(resp["TemplateTypes"]);
-      });
-    };
-  
-    function clearData() {
-      setDataSubmitted(false);
-      setSelectedOption(null);
-      setSelectedTemplateOption(null);
-      setFile(null)
-      viewerRef.current.innerHTML = ""; // clear previous preview
-    }
-  
+  const [dataSubmitted, setDataSubmitted] = useState(false);
 
+  const [firstLevelGroup, setFirstLevelGroup] = useState([]);
+  const [secondLevelGroup, setSecondLevelGroup] = useState({});
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedTemplateOption, setSelectedTemplateOption] = useState(null);
+
+  const viewerRef = useRef(null);
+
+  useEffect(() => {
+    if (firstLevelGroup.length === 0) {
+      getDropDownDataData();
+    }
+  }, []);
+
+  const getDropDownDataData = async () => {
+    try {
+      const resp = await axiosService.processGetRequest(
+        "http://127.0.0.1:5000/template/list-templates",
+      );
+      setFirstLevelGroup(resp["CaseTypes"]);
+      setSecondLevelGroup(resp["TemplateTypes"]);
+    } catch (error) {
+      console.error("Error fetching dropdown data:", error);
+    }
+  };
+
+  const clearData = () => {
+    setDataSubmitted(false);
+    setSelectedOption(null);
+    setSelectedTemplateOption(null);
+    setFile(null);
+    setPreviewName("");
+    if (viewerRef.current) viewerRef.current.innerHTML = "";
+  };
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -58,16 +68,15 @@ export default function UploadFiles() {
 
   const previewDocx = async (docFile) => {
     const arrayBuffer = await docFile.arrayBuffer();
-    viewerRef.current.innerHTML = ""; // clear previous preview
+    viewerRef.current.innerHTML = "";
     await renderAsync(arrayBuffer, viewerRef.current, undefined, {
-      // You can customize styles here if needed
       className: "docx-preview",
       inWrapper: true,
     });
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || !selectedOption || !selectedTemplateOption) return;
 
     setUploading(true);
     const formData = new FormData();
@@ -76,13 +85,17 @@ export default function UploadFiles() {
     formData.append("templateType", selectedTemplateOption.label);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/template/upload-documents", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "http://127.0.0.1:5000/template/upload-documents",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       if (response.ok) {
         alert("File uploaded successfully!");
+        clearData();
       } else {
         alert("Upload failed.");
       }
@@ -95,73 +108,100 @@ export default function UploadFiles() {
   };
 
   return (
-    <Container
-      fluid
-      style={{
-        height: "100vh",
-        width: "calc(100vw - 300px)",
+    <Box
+      sx={{
+        width: "calc(100vw - 350px)",
         padding: "20px",
-        boxSizing: "border-box",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        overflowY: "auto",
-        gap: "20px",
+        // gap: 3,
       }}
     >
-            <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-              <div style={{ width: "400px" }}>
-                <Select
-                  id="firstLevelSelection"
-                  options={firstLevelGroup}
-                  value={selectedOption}
-                  onChange={setSelectedOption}
-                  isClearable
-                  placeholder="Select a Case Type"
-                  isDisabled={dataSubmitted}
-                />
-              </div>
-              <div style={{ width: "400px" }}>
-                <Select
-                  id="templateSelection"
-                  options={secondLevelGroup[selectedOption?.value]}
-                  value={selectedTemplateOption}
-                  onChange={setSelectedTemplateOption}
-                  isClearable
-                  placeholder="Select a Template Type"
-                  isDisabled={dataSubmitted}
-                />
-              </div>
-              <Button
-                variant="outlined"
-                sx={{ marginLeft: "15px" }}
-                onClick={clearData}
-              >
-                Clear
-              </Button>
-            </div>
-      <Input
-        type="file"
-        accept=".docx"
-        onChange={handleFileChange}
-        style={{ maxWidth: "400px" }}
-      />
-      {previewName && <p>Previewing: {previewName}</p>}
-      <Button color="primary" onClick={handleUpload} disabled={!file || uploading}>
-        {uploading ? <Spinner size="sm" /> : "Upload File"}
+      <Typography variant="h4" fontWeight={600}>
+        Upload Word Template
+      </Typography>
+
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Select
+            id="firstLevelSelection"
+            options={firstLevelGroup}
+            value={selectedOption}
+            onChange={setSelectedOption}
+            isClearable
+            placeholder="Select a Case Type"
+            isDisabled={dataSubmitted}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Select
+            id="templateSelection"
+            options={secondLevelGroup[selectedOption?.value]}
+            value={selectedTemplateOption}
+            onChange={setSelectedTemplateOption}
+            isClearable
+            placeholder="Select a Template Type"
+            isDisabled={dataSubmitted}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 2 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            color="secondary"
+            onClick={clearData}
+          >
+            Clear
+          </Button>
+        </Grid>
+      </Grid>
+
+      <Box>
+        <input
+          type="file"
+          accept=".docx"
+          onChange={handleFileChange}
+          style={{ display: "block", marginTop: "16px" }}
+        />
+        {previewName && (
+          <Typography variant="body1" mt={1}>
+            Previewing: <strong>{previewName}</strong>
+          </Typography>
+        )}
+      </Box>
+
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleUpload}
+        disabled={!file || uploading}
+        sx={{ width: "200px", alignSelf: "flex-start" }}
+      >
+        {uploading ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : (
+          "Upload File"
+        )}
       </Button>
-      {file != null && (
-      <div
-        ref={viewerRef}
-        style={{
-          backgroundColor: "#fff",
-          padding: "20px",
-          borderRadius: "8px",
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-          width: "100%",
-          maxWidth: "800px",
-        }}
-      />)}
-    </Container>
+
+      {file && (
+        <Paper
+          elevation={3}
+          sx={{
+            mt: 3,
+            p: 3,
+            backgroundColor: "#fff",
+            borderRadius: 2,
+            boxShadow: 1,
+            maxHeight: "600px",
+            overflowY: "auto",
+          }}
+        >
+          <div ref={viewerRef} />
+        </Paper>
+      )}
+    </Box>
   );
 }

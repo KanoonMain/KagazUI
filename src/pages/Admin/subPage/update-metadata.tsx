@@ -57,16 +57,16 @@ export default function UpdateMetaData() {
       {
         CaseType: selectedOption.label,
         templateType: selectedTemplateOption.label,
-        replacement: formData
+        replacement: formData,
       },
     ).then((resp) => {
-      setMessage(resp)
+      setMessage(resp);
     });
   }
 
   useEffect(() => {
     if (selectedOption === null && selectedTemplateOption != null) {
-      setMessage("")
+      setMessage("");
       setSelectedTemplateOption(null);
     }
   }, [selectedOption]);

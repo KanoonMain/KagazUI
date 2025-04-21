@@ -123,7 +123,7 @@ export default function UpdateTables() {
         try {
           const { added = 0, updated = 0 } = resp; // default to 0 if missing
           setMessage(`Added ${added} Rows and Updated ${updated} Rows`);
-          await updateTableName(selectedOption)
+          await updateTableName(selectedOption);
         } catch (e) {
           setMessage("An error occurred while processing the response.");
           console.error(e);
@@ -133,7 +133,7 @@ export default function UpdateTables() {
         setMessage("Failed to update the table. Please try again.");
         console.error(error);
       });
-      updateTableName(selectedOption)
+    updateTableName(selectedOption);
   }
 
   const columns = {
