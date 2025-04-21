@@ -1,9 +1,16 @@
 import Select from "react-select";
 import UpdateMetaForm from "../../Admin/components/updateMetaData";
-import { Container } from "reactstrap";
 import { useState, useEffect } from "react";
 import AxiosService from "../../../services/axiosService";
-import { Button, Alert } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Button,
+  Alert,
+  Typography,
+  Paper,
+  Divider,
+} from "@mui/material";
 
 export default function UpdateMetaData() {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -15,7 +22,7 @@ export default function UpdateMetaData() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (firstLevelGroup.length == 0) {
+    if (firstLevelGroup.length === 0) {
       getDropDownDataData();
     }
   }, []);
@@ -29,15 +36,16 @@ export default function UpdateMetaData() {
     });
   };
 
-  function clearData() {
+  const clearData = () => {
     setDataSubmitted(false);
     setSelectedOption(null);
     setSelectedTemplateOption(null);
     setFormItems({});
-  }
+    setMessage("");
+  };
 
-  function submitData() {
-    if (selectedOption != null && selectedTemplateOption != null) {
+  const submitData = () => {
+    if (selectedOption && selectedTemplateOption) {
       AxiosService.processPostRequest(
         "http://127.0.0.1:5000/template/get-templates-feilds",
         {
@@ -47,11 +55,12 @@ export default function UpdateMetaData() {
       ).then((resp) => {
         setFormItems(resp);
         setDataSubmitted(true);
+        setMessage("");
       });
     }
-  }
+  };
 
-  function updateMetaData(formData) {
+  const updateMetaData = (formData) => {
     AxiosService.processPostRequest(
       "http://127.0.0.1:5000/template/update-templates-fields",
       {
@@ -62,74 +71,96 @@ export default function UpdateMetaData() {
     ).then((resp) => {
       setMessage(resp);
     });
-  }
+  };
 
   useEffect(() => {
-    if (selectedOption === null && selectedTemplateOption != null) {
-      setMessage("");
+    if (selectedOption === null && selectedTemplateOption !== null) {
       setSelectedTemplateOption(null);
+      setMessage("");
     }
   }, [selectedOption]);
 
   return (
-    <Container
-      fluid
-      style={{
-        height: "100vh",
-        width: "calc(100vw - 300px)",
+    <Box
+      sx={{
+        width: "calc(100vw - 350px)",
         padding: "20px",
-        boxSizing: "border-box",
+        // margin: "auto",
+        // padding: "20px",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
+        // gap: 4,
       }}
     >
-      {/* Top Controls */}
-      <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-        <div style={{ width: "400px" }}>
-          <Select
-            id="firstLevelSelection"
-            options={firstLevelGroup}
-            value={selectedOption}
-            onChange={setSelectedOption}
-            isClearable
-            placeholder="Select a Case Type"
-            isDisabled={dataSubmitted}
+      <Typography variant="h4" fontWeight="bold">
+        Update Template Metadata
+      </Typography>
+
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Select
+              id="firstLevelSelection"
+              options={firstLevelGroup}
+              value={selectedOption}
+              onChange={setSelectedOption}
+              isClearable
+              placeholder="Select a Case Type"
+              isDisabled={dataSubmitted}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Select
+              id="templateSelection"
+              options={secondLevelGroup[selectedOption?.value]}
+              value={selectedTemplateOption}
+              onChange={setSelectedTemplateOption}
+              isClearable
+              placeholder="Select a Template Type"
+              isDisabled={dataSubmitted}
+            />
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 2 }}>
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={submitData}
+              disabled={dataSubmitted}
+            >
+              Submit
+            </Button>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 2 }}>
+            <Button
+              variant="outlined"
+              fullWidth
+              color="secondary"
+              onClick={clearData}
+            >
+              Clear
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {message && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          {message}
+        </Alert>
+      )}
+
+      <Divider sx={{ marginTop: "20px" }} />
+      {Object.keys(formItems).length > 0 && (
+        <Paper elevation={3} sx={{ p: 3 }}>
+          <UpdateMetaForm
+            formFields={formItems}
+            generateTemplate={updateMetaData}
           />
-        </div>
-        <div style={{ width: "400px" }}>
-          <Select
-            id="templateSelection"
-            options={secondLevelGroup[selectedOption?.value]}
-            value={selectedTemplateOption}
-            onChange={setSelectedTemplateOption}
-            isClearable
-            placeholder="Select a Template Type"
-            isDisabled={dataSubmitted}
-          />
-        </div>
-        <Button
-          variant="contained"
-          // sx={{ marginTop: "15px" }}
-          onClick={submitData}
-          disabled={dataSubmitted}
-        >
-          Submit
-        </Button>
-        <Button
-          variant="outlined"
-          sx={{ marginLeft: "15px" }}
-          onClick={clearData}
-        >
-          Clear
-        </Button>
-      </div>
-      {message != "" && <Alert severity="info">{message}.</Alert>}
-      {/* Main Content Box */}
-      <UpdateMetaForm
-        formFields={formItems}
-        generateTemplate={updateMetaData}
-      />
-    </Container>
+        </Paper>
+      )}
+    </Box>
   );
 }

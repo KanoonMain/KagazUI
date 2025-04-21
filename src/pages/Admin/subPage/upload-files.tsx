@@ -177,7 +177,7 @@ export default function UploadFiles() {
         color="primary"
         onClick={handleUpload}
         disabled={!file || uploading}
-        sx={{ width: "200px", alignSelf: "flex-start" }}
+        sx={{ width: "200px", alignSelf: "flex-start", marginTop: "10px" }}
       >
         {uploading ? (
           <CircularProgress size={24} color="inherit" />
