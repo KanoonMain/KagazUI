@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, FormGroup, Form, Label, Button, Alert } from "reactstrap";
+import { Container, FormGroup, Form, Label, Button } from "reactstrap";
 import Select from "react-select";
 import axiosService from "../../../services/axiosService";
 import EditIcon from "@mui/icons-material/Edit";
@@ -13,10 +13,10 @@ import {
   GridRowId,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { Box, Typography } from "@mui/material";
 import { Toolbar, ToolbarButton } from "@mui/x-data-grid";
 import AddIcon from "@mui/icons-material/Add";
 import Tooltip from "@mui/material/Tooltip";
+import { Box, Typography, Divider, Snackbar, Alert, CircularProgress } from "@mui/material";
 
 export default function UpdateTables() {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -293,52 +293,69 @@ export default function UpdateTables() {
         width: "calc(100vw - 300px)",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
-        padding: "20px",
+        padding: "10px",
+        // backgroundColor: "#f9f9f9",
       }}
     >
-      <Form style={{ width: "300px", marginBottom: "30px" }}>
-        <FormGroup>
-          <Label for="firstLevelSelection">
-            <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
-              Table Selection
-            </Typography>
-          </Label>
+      <Box sx={{ width: "100%", maxWidth: 900 }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+          Update Tables
+        </Typography>
+        <Divider sx={{ mb: 4 }} />
+  
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+            Select Table
+          </Typography>
           <Select
             id="Table Selection"
             options={tableNames}
             value={selectedOption}
             onChange={updateTableName}
             isClearable
+            placeholder="Choose a table..."
           />
-        </FormGroup>
-      </Form>
-      {message != "" && <Alert severity="info">{message}.</Alert>}
-      <Box sx={{ height: 500, width: "80%" }}>
-        <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
-          Data Grid
-        </Typography>
-        <DataGrid
-          apiRef={apiRef}
-          rows={rowsData}
-          columns={selectedOption ? columns[selectedOption.value] : []}
-          editMode="row"
-          rowModesModel={rowModesModel}
-          onRowModesModelChange={handleRowModesModelChange}
-          processRowUpdate={handleProcessRowUpdate}
-          slots={{ toolbar: selectedOption ? CustomToolbar : null }}
-          showToolbar={selectedOption ? true : false}
-        />
-        {isUpdated && (
-          <Button
-            color="primary"
-            onClick={updateTable}
-            style={{ marginTop: "15px" }}
-          >
-            Update Changes
-          </Button>
+        </Box>
+  
+        {message !== "" && (
+          <Snackbar open autoHideDuration={6000} onClose={() => setMessage("")}>
+            <Alert severity="info" onClose={() => setMessage("")}>
+              {message}
+            </Alert>
+          </Snackbar>
         )}
+  
+        <Box sx={{ height: 500, width: "100%" }}>
+          <Typography variant="subtitle2" sx={{ color: "text.secondary", mb: 1 }}>
+            Table Data
+          </Typography>
+          <DataGrid
+            apiRef={apiRef}
+            rows={rowsData}
+            columns={selectedOption ? columns[selectedOption.value] : []}
+            editMode="row"
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={handleRowModesModelChange}
+            processRowUpdate={handleProcessRowUpdate}
+            slots={{ toolbar: selectedOption ? CustomToolbar : null }}
+            showToolbar={!!selectedOption}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: 1,
+              "& .MuiDataGrid-toolbarContainer": {
+                padding: 1,
+              },
+            }}
+          />
+          {isUpdated && (
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+              <Button color="primary" onClick={updateTable}>
+                Update Changes
+              </Button>
+            </Box>
+          )}
+        </Box>
       </Box>
     </Container>
   );
