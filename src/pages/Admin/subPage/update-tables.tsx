@@ -14,6 +14,9 @@ import {
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { Box, Typography } from "@mui/material";
+import { Toolbar, ToolbarButton } from "@mui/x-data-grid";
+import AddIcon from "@mui/icons-material/Add";
+import Tooltip from "@mui/material/Tooltip";
 
 export default function UpdateTables() {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -21,6 +24,7 @@ export default function UpdateTables() {
   const [mappingData, setMappingData] = useState({});
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const apiRef = useGridApiRef();
+  const [isUpdated, setIsUpdated] = useState(false);
 
   const tableNames = [
     { id: 1, value: "CaseTypes", label: "Case Types" },
@@ -43,6 +47,7 @@ export default function UpdateTables() {
       ...prevModel,
       [id]: { mode: GridRowModes.View },
     }));
+    setIsUpdated(true);
   };
 
   const handleCancelClick = (id: GridRowId) => () => {
@@ -62,12 +67,13 @@ export default function UpdateTables() {
         row.id === newRow.id ? { ...newRow, updated: true } : row,
       ),
     );
+    setIsUpdated(true);
     return newRow;
   };
 
   const handleAddRow = () => {
     if (!selectedOption) return;
-
+    setIsUpdated(true);
     const newId = Math.max(0, ...rowsData.map((row) => Number(row.id))) + 1;
 
     const newRow =
@@ -89,6 +95,18 @@ export default function UpdateTables() {
     }));
   };
 
+  function CustomToolbar() {
+    return (
+      <Toolbar>
+        <Tooltip title="Add record">
+          <ToolbarButton onClick={handleAddRow}>
+            <AddIcon fontSize="small" />
+          </ToolbarButton>
+        </Tooltip>
+      </Toolbar>
+    );
+  }
+
   const columns = {
     CaseTypes: [
       { field: "id", headerName: "ID", editable: false },
@@ -102,8 +120,13 @@ export default function UpdateTables() {
           { value: 1, label: "Active" },
           { value: 0, label: "Disabled" },
         ],
-        valueFormatter: ({ value }) =>
-          value === 0 || value === "0" ? "Disabled" : "Active",
+        valueFormatter: ({ value }) => {
+          if (value === 0 || value === "0") {
+            return "Disabled";
+          } else {
+            return "Active";
+          }
+        },
       },
       {
         field: "actions",
@@ -218,9 +241,12 @@ export default function UpdateTables() {
     axiosService
       .processGetRequest(`http://127.0.0.1:5000/template/${value.value}`)
       .then((resp) => {
+        setIsUpdated(false);
         setRowsData(resp);
       });
   }
+  console.log("Rows", rowsData);
+  console.log("rowModesModel", rowModesModel);
   return (
     <Container
       fluid
@@ -251,17 +277,7 @@ export default function UpdateTables() {
         </FormGroup>
       </Form>
 
-      {selectedOption && (
-        <Button
-          color="primary"
-          onClick={handleAddRow}
-          style={{ marginBottom: "15px" }}
-        >
-          Add Row
-        </Button>
-      )}
-
-      <Box sx={{ height: 400, width: "80%" }}>
+      <Box sx={{ height: 500, width: "80%" }}>
         <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
           Data Grid
         </Typography>
@@ -273,7 +289,18 @@ export default function UpdateTables() {
           rowModesModel={rowModesModel}
           onRowModesModelChange={handleRowModesModelChange}
           processRowUpdate={handleProcessRowUpdate}
+          slots={{ toolbar: selectedOption ? CustomToolbar : null }}
+          showToolbar={selectedOption ? true : false}
         />
+        {isUpdated && (
+          <Button
+            color="primary"
+            onClick={() => alert("Test")}
+            style={{ marginTop: "15px" }}
+          >
+            Update Changes
+          </Button>
+        )}
       </Box>
     </Container>
   );
