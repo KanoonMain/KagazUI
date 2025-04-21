@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, FormGroup, Form, Label } from "reactstrap";
+import { Container, FormGroup, Form, Label, Button } from "reactstrap";
 import Select from "react-select";
 import axiosService from "../../../services/axiosService";
 import EditIcon from "@mui/icons-material/Edit";
@@ -21,6 +21,7 @@ export default function UpdateTables() {
   const [mappingData, setMappingData] = useState({});
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const apiRef = useGridApiRef();
+
   const tableNames = [
     { id: 1, value: "CaseTypes", label: "Case Types" },
     { id: 2, value: "TemplateTypes", label: "Template Types" },
@@ -57,9 +58,35 @@ export default function UpdateTables() {
 
   const handleProcessRowUpdate = (newRow, oldRow) => {
     setRowsData((prevRows) =>
-      prevRows.map((row) => (row.id === newRow.id ? {...newRow, updated: true} : row))
+      prevRows.map((row) =>
+        row.id === newRow.id ? { ...newRow, updated: true } : row,
+      ),
     );
     return newRow;
+  };
+
+  const handleAddRow = () => {
+    if (!selectedOption) return;
+
+    const newId = Math.max(0, ...rowsData.map((row) => Number(row.id))) + 1;
+
+    const newRow =
+      selectedOption.value === "CaseTypes"
+        ? { id: newId, name: "", isActive: 1, added: true }
+        : {
+            id: newId,
+            caseTypeid: "",
+            templateName: "",
+            isActive: 1,
+            added: true,
+          };
+
+    setRowsData((prev) => [...prev, newRow]);
+
+    setRowModesModel((prevModel) => ({
+      ...prevModel,
+      [newId]: { mode: GridRowModes.Edit },
+    }));
   };
 
   const columns = {
@@ -122,7 +149,7 @@ export default function UpdateTables() {
           value: id,
           label: label,
         })),
-        valueFormatter: ( value ) =>  mappingData[value] || value,
+        valueFormatter: (value) => mappingData[value] || value,
       },
       {
         field: "templateName",
@@ -185,7 +212,6 @@ export default function UpdateTables() {
           acc[item.id] = item.label;
           return acc;
         }, {});
-        console.log("result", result)
         setMappingData(result);
       });
 
@@ -195,7 +221,6 @@ export default function UpdateTables() {
         setRowsData(resp);
       });
   }
-  console.log("Rows", rowsData)
   return (
     <Container
       fluid
@@ -225,6 +250,16 @@ export default function UpdateTables() {
           />
         </FormGroup>
       </Form>
+
+      {selectedOption && (
+        <Button
+          color="primary"
+          onClick={handleAddRow}
+          style={{ marginBottom: "15px" }}
+        >
+          Add Row
+        </Button>
+      )}
 
       <Box sx={{ height: 400, width: "80%" }}>
         <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
