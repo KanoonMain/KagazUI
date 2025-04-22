@@ -8,8 +8,11 @@ import ConstructionRoundedIcon from "@mui/icons-material/ConstructionRounded";
 import SettingsSuggestRoundedIcon from "@mui/icons-material/SettingsSuggestRounded";
 import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
 import SignIn from "./SignIn";
+import SignUp from "./SignUp";
+import { useLocation } from "react-router-dom";
 
 function Home() {
+  let location = useLocation();
   const items = [
     {
       icon: <SettingsSuggestRoundedIcon sx={{ color: "text.secondary" }} />,
@@ -78,7 +81,8 @@ function Home() {
           </Stack>
         </Col>
         <Col>
-          <SignIn />
+          {!location.pathname.includes("/signup") && <SignIn />}
+          {location.pathname.includes("/signup") && <SignUp />}
         </Col>
       </Row>
     </Container>

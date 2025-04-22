@@ -34,7 +34,7 @@ export default function UpdateMetaData() {
     try {
       setLoading(true);
       const resp = await AxiosService.processGetRequest(
-        "http://127.0.0.1:5000/template/list-templates"
+        "http://127.0.0.1:5000/template/list-templates",
       );
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
@@ -62,7 +62,7 @@ export default function UpdateMetaData() {
           {
             CaseType: selectedOption.label,
             templateType: selectedTemplateOption.label,
-          }
+          },
         );
         setFormItems(resp);
         setDataSubmitted(true);
@@ -85,7 +85,7 @@ export default function UpdateMetaData() {
           CaseType: selectedOption.label,
           templateType: selectedTemplateOption.label,
           replacement: formData,
-        }
+        },
       );
       setMessage(resp);
     } catch (err) {

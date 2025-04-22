@@ -37,7 +37,7 @@ export default function UploadFiles() {
     try {
       setLoading(true); // Start global loading
       const resp = await axiosService.processGetRequest(
-        "http://127.0.0.1:5000/template/list-templates"
+        "http://127.0.0.1:5000/template/list-templates",
       );
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
@@ -99,7 +99,7 @@ export default function UploadFiles() {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (response.ok) {
@@ -133,15 +133,15 @@ export default function UploadFiles() {
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 6 }}>
-            <Select
-              id="firstLevelSelection"
-              options={firstLevelGroup}
-              value={selectedOption}
-              onChange={setSelectedOption}
-              isClearable
-              placeholder="Select a Case Type"
-              isDisabled={dataSubmitted}
-            />
+          <Select
+            id="firstLevelSelection"
+            options={firstLevelGroup}
+            value={selectedOption}
+            onChange={setSelectedOption}
+            isClearable
+            placeholder="Select a Case Type"
+            isDisabled={dataSubmitted}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>

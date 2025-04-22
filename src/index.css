@@ -1,10 +1,22 @@
 .root {
+  display: flex;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
-}
+  overflow: hidden; /* Prevent scrolling if content is too big */
 
+}
 
 body {
   width: 100vw;
   height: 100vh;
+}
+/* styles.css or in your global CSS file */
+
+
+main {
+  flex-grow: 1; /* Let the main content take available space */
+  overflow-y: auto; /* Allow vertical scrolling within the main content if needed */
+  /* padding: 20px; */
+  box-sizing: border-box;
 }

@@ -11,37 +11,8 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const authenticateUser = (email, password) => {
-  console.log(email, password)
-  return "sample-auth-token"; // Example token
-};
-
-export default function LoginPage() {
+export default function SignUpPage() {
   const navigate = useNavigate();
-
-  // Function to handle login
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    // Dummy login credentials (you can replace this with real form values)
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    // Authenticate the user and get the auth token (replace with real authentication logic)
-    const authToken = authenticateUser(email, password);
-    // If authentication is successful
-    if (authToken) {
-      // Store auth token and last login time
-      localStorage.setItem("authToken", authToken);
-      localStorage.setItem("lastSignInTime", new Date().getTime().toString());
-      // Redirect user to the create page
-      navigate("/create");
-    } else {
-      // If authentication fails, show an error message (you can handle this as needed)
-      alert("Invalid credentials");
-    }
-  };
-
   return (
     <Container component="main" maxWidth="xs">
       <Paper elevation={6} sx={{ padding: 4, borderRadius: 3, mt: 4, mb: 4 }}>
@@ -50,9 +21,9 @@ export default function LoginPage() {
           variant="h5"
           sx={{ fontWeight: "bold", mb: 2 }}
         >
-          Sign in
+          Sign Up
         </Typography>
-        <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleLogin}>
+        <Box component="form" noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -72,7 +43,17 @@ export default function LoginPage() {
             label="Password"
             type="password"
             id="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirm-password"
+            autoComplete="new-password"
           />
           <Box
             sx={{
@@ -83,17 +64,18 @@ export default function LoginPage() {
             }}
           >
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              control={<Checkbox value="agreeToTerms" color="primary" />}
+              label="I agree to the Terms and Conditions"
             />
-            <Link href="#" variant="body2">
-              Forgot your password?
-            </Link>
           </Box>
           <Button
             type="submit"
             fullWidth
             variant="contained"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/welcome"); // Redirect to a welcome or confirmation page
+            }}
             sx={{
               mt: 3,
               mb: 2,
@@ -102,11 +84,11 @@ export default function LoginPage() {
               color: "white",
             }}
           >
-            Sign in
+            Sign Up
           </Button>
           <Typography variant="body2" align="center">
-            Don't have an account?{" "}
-            <Link onClick={() => navigate("/signup")}>Sign Up</Link>
+            Already have an account?{" "}
+            <Link onClick={() => navigate("/")}>Sign In</Link>
           </Typography>
         </Box>
       </Paper>

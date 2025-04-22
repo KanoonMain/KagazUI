@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Container, FormGroup, Form, Label, Button } from "reactstrap";
+import { Container, Button } from "reactstrap";
 import Select from "react-select";
 import axiosService from "../../../services/axiosService";
 import EditIcon from "@mui/icons-material/Edit";
@@ -43,17 +43,15 @@ export default function UpdateTables() {
   ];
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      apiRef.current.autosizeColumns({
+        includeOutliers: true,
+        expand: true,
+      });
+    }, 100);
 
-      const timeout = setTimeout(() => {
-        apiRef.current.autosizeColumns({
-          includeOutliers: true,
-          expand: true,
-        });
-      }, 100);
-  
-      return () => clearTimeout(timeout);
-    }
-  , [rowsData, rowModesModel]);
+    return () => clearTimeout(timeout);
+  }, [rowsData, rowModesModel]);
 
   const handleEditClick = (id: GridRowId) => () => {
     setRowModesModel((prevModel) => ({
@@ -82,14 +80,15 @@ export default function UpdateTables() {
   };
 
   const handleProcessRowUpdate = (newRow, oldRow) => {
+    console.log(oldRow)
     const isActive = newRow.isactive;
     newRow.isactive =
       isActive === true || isActive === "true" || isActive === "Active";
 
     setRowsData((prevRows) =>
       prevRows.map((row) =>
-        row.id === newRow.id ? { ...newRow, updated: true } : row
-      )
+        row.id === newRow.id ? { ...newRow, updated: true } : row,
+      ),
     );
     setIsUpdated(true);
     return newRow;
@@ -133,14 +132,14 @@ export default function UpdateTables() {
 
   function updateTable() {
     const filtered = rowsData.filter(
-      (obj) => "updated" in obj || "added" in obj
+      (obj) => "updated" in obj || "added" in obj,
     );
 
     setLoading(true);
     axiosService
       .processPostRequest(
         `http://127.0.0.1:5000/template/${selectedOption.value}`,
-        filtered
+        filtered,
       )
       .then(async (resp) => {
         setIsUpdated(false);
@@ -358,7 +357,10 @@ export default function UpdateTables() {
         )}
 
         <Box sx={{ height: 500, width: "100%" }}>
-          <Typography variant="subtitle2" sx={{ color: "text.secondary", mb: 1 }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: "text.secondary", mb: 1 }}
+          >
             Table Data
           </Typography>
           <DataGrid

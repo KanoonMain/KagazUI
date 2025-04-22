@@ -5,18 +5,28 @@ const routes = [
   {
     Component: CreateTemplate,
     path: "/create",
+    isPrivate: true, // Private route, needs auth
   },
   {
     Component: MainPage,
     path: "/",
+    isPrivate: false,
+
+  },
+  {
+    Component: MainPage,
+    path: "/signup",
+    isPrivate: false,
   },
   {
     Component: AdminMain,
     path: "/admin",
+    isPrivate: true, // Private route, needs auth
   },
   {
     Component: AdminMain,
     path: "/admin/:path",
+    isPrivate: true, // Private route, needs auth
   }
 ];
 
