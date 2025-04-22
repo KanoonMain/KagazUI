@@ -6,6 +6,7 @@ import {
   Button,
   CircularProgress,
   Paper,
+  Backdrop,
 } from "@mui/material";
 import { renderAsync } from "docx-preview";
 import axiosService from "../../../services/axiosService";
@@ -16,6 +17,7 @@ export default function UploadFiles() {
   const [previewName, setPreviewName] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dataSubmitted, setDataSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false); // Global loading state
 
   const [firstLevelGroup, setFirstLevelGroup] = useState([]);
   const [secondLevelGroup, setSecondLevelGroup] = useState({});
@@ -23,6 +25,7 @@ export default function UploadFiles() {
   const [selectedTemplateOption, setSelectedTemplateOption] = useState(null);
 
   const viewerRef = useRef(null);
+  const fileInputRef = useRef(null); // NEW
 
   useEffect(() => {
     if (firstLevelGroup.length === 0) {
@@ -32,13 +35,16 @@ export default function UploadFiles() {
 
   const getDropDownDataData = async () => {
     try {
+      setLoading(true); // Start global loading
       const resp = await axiosService.processGetRequest(
-        "http://127.0.0.1:5000/template/list-templates",
+        "http://127.0.0.1:5000/template/list-templates"
       );
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
     } catch (error) {
       console.error("Error fetching dropdown data:", error);
+    } finally {
+      setLoading(false); // Stop global loader
     }
   };
 
@@ -49,6 +55,7 @@ export default function UploadFiles() {
     setFile(null);
     setPreviewName("");
     if (viewerRef.current) viewerRef.current.innerHTML = "";
+    if (fileInputRef.current) fileInputRef.current.value = ""; // RESET file input
   };
 
   const handleFileChange = async (e) => {
@@ -79,6 +86,8 @@ export default function UploadFiles() {
     if (!file || !selectedOption || !selectedTemplateOption) return;
 
     setUploading(true);
+    setLoading(true); // Start global loader during upload
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("caseType", selectedOption.label);
@@ -90,7 +99,7 @@ export default function UploadFiles() {
         {
           method: "POST",
           body: formData,
-        },
+        }
       );
 
       if (response.ok) {
@@ -104,6 +113,7 @@ export default function UploadFiles() {
       alert("An error occurred while uploading.");
     } finally {
       setUploading(false);
+      setLoading(false); // Stop global loader after upload finishes
     }
   };
 
@@ -123,15 +133,15 @@ export default function UploadFiles() {
 
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Select
-            id="firstLevelSelection"
-            options={firstLevelGroup}
-            value={selectedOption}
-            onChange={setSelectedOption}
-            isClearable
-            placeholder="Select a Case Type"
-            isDisabled={dataSubmitted}
-          />
+            <Select
+              id="firstLevelSelection"
+              options={firstLevelGroup}
+              value={selectedOption}
+              onChange={setSelectedOption}
+              isClearable
+              placeholder="Select a Case Type"
+              isDisabled={dataSubmitted}
+            />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
@@ -142,7 +152,7 @@ export default function UploadFiles() {
             onChange={setSelectedTemplateOption}
             isClearable
             placeholder="Select a Template Type"
-            isDisabled={dataSubmitted}
+            isDisabled={dataSubmitted || !selectedOption}
           />
         </Grid>
 
@@ -160,6 +170,7 @@ export default function UploadFiles() {
 
       <Box>
         <input
+          ref={fileInputRef}
           type="file"
           accept=".docx"
           onChange={handleFileChange}
@@ -202,6 +213,17 @@ export default function UploadFiles() {
           <div ref={viewerRef} />
         </Paper>
       )}
+
+      {/* FULL PAGE LOADER */}
+      <Backdrop
+        open={loading}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          color: "#fff",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Box>
   );
 }

@@ -10,6 +10,8 @@ import {
   Typography,
   Paper,
   Divider,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
 
 export default function UpdateMetaData() {
@@ -20,6 +22,7 @@ export default function UpdateMetaData() {
   const [secondLevelGroup, setSecondLevelGroup] = useState({});
   const [formItems, setFormItems] = useState({});
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false); // NEW
 
   useEffect(() => {
     if (firstLevelGroup.length === 0) {
@@ -28,12 +31,18 @@ export default function UpdateMetaData() {
   }, []);
 
   const getDropDownDataData = async () => {
-    AxiosService.processGetRequest(
-      "http://127.0.0.1:5000/template/list-templates",
-    ).then((resp) => {
+    try {
+      setLoading(true);
+      const resp = await AxiosService.processGetRequest(
+        "http://127.0.0.1:5000/template/list-templates"
+      );
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
-    });
+    } catch (error) {
+      console.error("Error fetching dropdown data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const clearData = () => {
@@ -44,33 +53,47 @@ export default function UpdateMetaData() {
     setMessage("");
   };
 
-  const submitData = () => {
+  const submitData = async () => {
     if (selectedOption && selectedTemplateOption) {
-      AxiosService.processPostRequest(
-        "http://127.0.0.1:5000/template/get-templates-feilds",
-        {
-          CaseType: selectedOption.label,
-          templateType: selectedTemplateOption.label,
-        },
-      ).then((resp) => {
+      try {
+        setLoading(true);
+        const resp = await AxiosService.processPostRequest(
+          "http://127.0.0.1:5000/template/get-templates-feilds",
+          {
+            CaseType: selectedOption.label,
+            templateType: selectedTemplateOption.label,
+          }
+        );
         setFormItems(resp);
         setDataSubmitted(true);
         setMessage("");
-      });
+      } catch (err) {
+        console.error("Submit error:", err);
+        setMessage("Failed to fetch template fields.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  const updateMetaData = (formData) => {
-    AxiosService.processPostRequest(
-      "http://127.0.0.1:5000/template/update-templates-fields",
-      {
-        CaseType: selectedOption.label,
-        templateType: selectedTemplateOption.label,
-        replacement: formData,
-      },
-    ).then((resp) => {
+  const updateMetaData = async (formData) => {
+    try {
+      setLoading(true);
+      const resp = await AxiosService.processPostRequest(
+        "http://127.0.0.1:5000/template/update-templates-fields",
+        {
+          CaseType: selectedOption.label,
+          templateType: selectedTemplateOption.label,
+          replacement: formData,
+        }
+      );
       setMessage(resp);
-    });
+    } catch (err) {
+      console.error("Update metadata error:", err);
+      setMessage("Failed to update metadata.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -118,7 +141,7 @@ export default function UpdateMetaData() {
               onChange={setSelectedTemplateOption}
               isClearable
               placeholder="Select a Template Type"
-              isDisabled={dataSubmitted}
+              isDisabled={dataSubmitted || !selectedOption}
             />
           </Grid>
 
@@ -147,12 +170,13 @@ export default function UpdateMetaData() {
       </Paper>
 
       {message && (
-        <Alert severity="info" sx={{ mb: 2 }}>
+        <Alert severity="info" sx={{ mt: 2 }}>
           {message}
         </Alert>
       )}
 
       <Divider sx={{ marginTop: "20px" }} />
+
       {Object.keys(formItems).length > 0 && (
         <Paper elevation={3} sx={{ p: 3 }}>
           <UpdateMetaForm
@@ -161,6 +185,17 @@ export default function UpdateMetaData() {
           />
         </Paper>
       )}
+
+      {/* FULL PAGE LOADER */}
+      <Backdrop
+        open={loading}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          color: "#fff",
+        }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Box>
   );
 }
