@@ -33,7 +33,7 @@ function CreateTemplate() {
 
   const getDropDownDataData = async () => {
     AxiosService.processGetRequest(
-      "http://127.0.0.1:5000/template/list-templates",
+      "https://kagaz.ruaaventures.com/api/template/list-templates",
     ).then((resp) => {
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
@@ -50,7 +50,7 @@ function CreateTemplate() {
   function submitData() {
     if (selectedOption != null && selectedTemplateOption != null) {
       AxiosService.processPostRequest(
-        "http://127.0.0.1:5000/template/get-templates-feilds",
+        "https://kagaz.ruaaventures.com/api/template/get-templates-feilds",
         {
           CaseType: selectedOption.label,
           templateType: selectedTemplateOption.label,
@@ -66,7 +66,7 @@ function CreateTemplate() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "http://127.0.0.1:5000/template/generate-template-pdf",
+        "https://kagaz.ruaaventures.com/api/template/generate-template-pdf",
         {
           method: "POST",
           headers: {

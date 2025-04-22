@@ -138,7 +138,7 @@ export default function UpdateTables() {
     setLoading(true);
     axiosService
       .processPostRequest(
-        `http://127.0.0.1:5000/template/${selectedOption.value}`,
+        `https://kagaz.ruaaventures.com/api/template/${selectedOption.value}`,
         filtered,
       )
       .then(async (resp) => {
@@ -291,7 +291,7 @@ export default function UpdateTables() {
     if (!value?.value) return;
     setLoading(true);
     axiosService
-      .processGetRequest(`http://127.0.0.1:5000/template/getValues`)
+      .processGetRequest(`https://kagaz.ruaaventures.com/api/template/getValues`)
       .then((resp) => {
         const result = resp["CaseTypes"].reduce((acc, item) => {
           acc[item.id] = item.label;
@@ -302,7 +302,7 @@ export default function UpdateTables() {
       .catch(console.error);
 
     axiosService
-      .processGetRequest(`http://127.0.0.1:5000/template/${value.value}`)
+      .processGetRequest(`https://kagaz.ruaaventures.com/api/template/${value.value}`)
       .then((resp) => {
         setIsUpdated(false);
         setRowsData(resp);

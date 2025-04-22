@@ -34,7 +34,7 @@ export default function UpdateMetaData() {
     try {
       setLoading(true);
       const resp = await AxiosService.processGetRequest(
-        "http://127.0.0.1:5000/template/list-templates",
+        "https://kagaz.ruaaventures.com/api/template/list-templates",
       );
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
@@ -58,7 +58,7 @@ export default function UpdateMetaData() {
       try {
         setLoading(true);
         const resp = await AxiosService.processPostRequest(
-          "http://127.0.0.1:5000/template/get-templates-feilds",
+          "https://kagaz.ruaaventures.com/api/template/get-templates-feilds",
           {
             CaseType: selectedOption.label,
             templateType: selectedTemplateOption.label,
@@ -80,7 +80,7 @@ export default function UpdateMetaData() {
     try {
       setLoading(true);
       const resp = await AxiosService.processPostRequest(
-        "http://127.0.0.1:5000/template/update-templates-fields",
+        "https://kagaz.ruaaventures.com/api/template/update-templates-fields",
         {
           CaseType: selectedOption.label,
           templateType: selectedTemplateOption.label,

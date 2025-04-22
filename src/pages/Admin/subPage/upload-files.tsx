@@ -37,7 +37,7 @@ export default function UploadFiles() {
     try {
       setLoading(true); // Start global loading
       const resp = await axiosService.processGetRequest(
-        "http://127.0.0.1:5000/template/list-templates",
+        "https://kagaz.ruaaventures.com/api/template/list-templates",
       );
       setFirstLevelGroup(resp["CaseTypes"]);
       setSecondLevelGroup(resp["TemplateTypes"]);
@@ -95,7 +95,7 @@ export default function UploadFiles() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:5000/template/upload-documents",
+        "https://kagaz.ruaaventures.com/api/template/upload-documents",
         {
           method: "POST",
           body: formData,
