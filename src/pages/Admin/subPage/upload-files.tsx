@@ -82,7 +82,7 @@ export default function UploadFiles() {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("caseType", selectedOption.label);
-    formData.append("templateType", selectedTemplateOption.label);
+    formData.append("TemplateType", selectedTemplateOption.label);
 
     try {
       const response = await fetch(
