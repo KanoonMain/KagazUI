@@ -1,6 +1,7 @@
-import MainPage from "../pages/Home";
-import CreateTemplate from "../pages/CreateTemplate"
-import AdminMain from "../pages/Admin/Main"
+import RegisterAuthenticate from "../pages/login-signup/register-authenticate";
+import CreateTemplate from "../pages/template-generator/create-template"
+import AdminMain from "../pages/admin-section/Main"
+import LandingPage from "../pages/landing-page/LandingPage"
 const routes = [
   {
     Component: CreateTemplate,
@@ -8,13 +9,17 @@ const routes = [
     isPrivate: true, // Private route, needs auth
   },
   {
-    Component: MainPage,
+    Component: LandingPage,
     path: "/",
     isPrivate: false,
-
   },
   {
-    Component: MainPage,
+    Component: RegisterAuthenticate,
+    path: "/signin",
+    isPrivate: false,
+  },
+  {
+    Component: RegisterAuthenticate,
     path: "/signup",
     isPrivate: false,
   },

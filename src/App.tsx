@@ -1,5 +1,10 @@
 import routes from "./routes/index";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import Header from "./components/Header";
 
 // Dummy authentication check (replace with your actual auth logic)
