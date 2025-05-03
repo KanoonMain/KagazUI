@@ -5,8 +5,13 @@ import AxiosService from "../../services/axiosService";
 import AddressForm from "./address-form";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
+import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
+import { setUserData } from "../../store/slice/authSlice";
+
 
 function CreateTemplate() {
+  const dispatch = useAppDispatch()
+  const { email} = useAppSelector((state)=> state.auth)
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedTemplateOption, setSelectedTemplateOption] = useState(null);
   const [selectedTemplateDetails, setSelectedTemplateDetails] = useState({});
@@ -43,7 +48,7 @@ function CreateTemplate() {
   function submitData() {
     if (selectedOption != null && selectedTemplateOption != null) {
       AxiosService.processPostRequest(
-        "http://127.0.0.1:5000/template/get-templates-feilds",
+        "http://127.0.0.1:5000/template/get-templates-fields",
         {
           CaseType: selectedOption.label,
           templateType: selectedTemplateOption.label,
@@ -55,15 +60,33 @@ function CreateTemplate() {
     }
   }
 
+    const fetchUserInfo = async () => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+  
+        try {
+          const data = await AxiosService.processGetRequest(
+            "http://localhost:5000/template/credits",
+          );
+          dispatch(
+            setUserData({ email: email, credits: data.credits }),
+          );
+        } catch (err) {
+          console.error("Error fetching credits:", err);
+        }
+      };
+
   async function generateTemplate() {
     setIsLoading(true);
     try {
+      const token = localStorage.getItem("authToken");
       const response = await fetch(
         "http://127.0.0.1:5000/template/generate-template-pdf",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             CaseType: selectedOption.label,
@@ -89,6 +112,7 @@ function CreateTemplate() {
       console.error("Download error:", error);
     }
     setIsLoading(false);
+    fetchUserInfo()
   }
 
   useEffect(() => {

@@ -10,35 +10,40 @@ import {
   Paper,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
-const authenticateUser = (email, password) => {
-  console.log(email, password);
-  return "sample-auth-token"; // Example token
-};
+import { useState, FormEvent } from "react";
+import { useAppDispatch } from "../../hooks/hooks";
+import { signIn } from "../../store/slice/authSlice";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const [error, setError] = useState("");
 
-  // Function to handle login
-  const handleLogin = (e) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
 
-    // Dummy login credentials (you can replace this with real form values)
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    // Authenticate the user and get the auth token (replace with real authentication logic)
-    const authToken = authenticateUser(email, password);
-    // If authentication is successful
-    if (authToken) {
-      // Store auth token and last login time
-      localStorage.setItem("authToken", authToken);
-      localStorage.setItem("lastSignInTime", new Date().getTime().toString());
-      // Redirect user to the create page
-      navigate("/create");
-    } else {
-      // If authentication fails, show an error message (you can handle this as needed)
-      alert("Invalid credentials");
+    try {
+      const res = await fetch("http://localhost:5000/template/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const token = data.token;
+        const lastSignInTime = new Date().getTime().toString();
+        dispatch(signIn({ token, lastSignInTime }));
+        navigate("/create");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Network error or server not reachable");
     }
   };
 
@@ -90,6 +95,16 @@ export default function LoginPage() {
               Forgot your password?
             </Link>
           </Box>
+          {error && (
+            <Typography
+              variant="body2"
+              color="error"
+              align="center"
+              sx={{ mt: 1 }}
+            >
+              {error}
+            </Typography>
+          )}
           <Button
             type="submit"
             fullWidth
@@ -106,7 +121,9 @@ export default function LoginPage() {
           </Button>
           <Typography variant="body2" align="center">
             Don't have an account?{" "}
-            <Link onClick={() => navigate("/signup")}>Sign Up</Link>
+            <Link component="button" onClick={() => navigate("/signup")}>
+              Sign Up
+            </Link>
           </Typography>
         </Box>
       </Paper>

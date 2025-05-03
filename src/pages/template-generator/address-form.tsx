@@ -70,7 +70,6 @@ export default function AddressForm({
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
-        console.log(templateDetails);
         return (
           <Box sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>

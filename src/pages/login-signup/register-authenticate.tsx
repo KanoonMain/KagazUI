@@ -9,10 +9,24 @@ import SettingsSuggestRoundedIcon from "@mui/icons-material/SettingsSuggestRound
 import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAppSelector } from "../../hooks/hooks";
+import { useEffect } from "react";
 
 function RegisterAuthenticate() {
-  let location = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userInfo = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (
+      (location.pathname.includes("/signin") ||
+        location.pathname.includes("/signup")) &&
+      userInfo.email != ""
+    ) {
+      navigate("/create");
+    }
+  }, [location]);
   const items = [
     {
       icon: <SettingsSuggestRoundedIcon sx={{ color: "text.secondary" }} />,

@@ -58,7 +58,7 @@ export default function UpdateMetaData() {
       try {
         setLoading(true);
         const resp = await AxiosService.processPostRequest(
-          "http://127.0.0.1:5000/template/get-templates-feilds",
+          "http://127.0.0.1:5000/template/get-templates-fields",
           {
             CaseType: selectedOption.label,
             templateType: selectedTemplateOption.label,

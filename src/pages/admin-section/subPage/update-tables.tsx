@@ -235,6 +235,14 @@ export default function UpdateTables() {
         editable: true,
       },
       {
+        field: "price",
+        headerName: "Price",
+        editable: true,
+        renderCell: (params) =>
+          "₹" + params.value
+       
+      },
+      {
         field: "isactive",
         headerName: "Is Active",
         type: "singleSelect",
