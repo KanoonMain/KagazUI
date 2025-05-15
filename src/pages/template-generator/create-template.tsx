@@ -66,7 +66,7 @@ function CreateTemplate() {
   
         try {
           const data = await AxiosService.processGetRequest(
-            "http://localhost:5000/template/credits",
+            "https://kagaz.ruaaventures.com/api/template/credits",
           );
           dispatch(
             setUserData({ email: email, credits: data.credits }),

@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 // import "@fortawesome/fontawesome-free/css/all.min.css";
 import "../../assets/css/templatemo-chain-app-dev.css";
 import "../../assets/css/animated.css";

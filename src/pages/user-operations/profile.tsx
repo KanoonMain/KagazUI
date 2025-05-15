@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -42,7 +42,7 @@ const Profile = () => {
       setOrdersLoading(true);
       try {
         const data = await axiosService.processGetRequest(
-          "http://localhost:5000/template/orders"
+          "https://kagaz.ruaaventures.com/api/template/orders"
         );
         setOrders(data.orders || []);
       } catch (error) {
@@ -58,7 +58,7 @@ const Profile = () => {
     setPasswordLoading(true);
     try {
       const data = await axiosService.processPostRequest(
-        "http://localhost:5000/template/update-password",
+        "https://kagaz.ruaaventures.com/api/template/update-password",
         {
           email,
           oldPassword,
@@ -84,7 +84,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(
-        "http://localhost:5000/template/regenerate",
+        "https://kagaz.ruaaventures.com/api/template/regenerate",
         {
           method: "POST",
           headers: {
