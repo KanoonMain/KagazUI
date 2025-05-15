@@ -4,6 +4,7 @@ import AdminMain from "../pages/admin-section/Main"
 import LandingPage from "../pages/landing-page/LandingPage"
 import Recharge from "../pages/user-operations/recharge"
 import Profile from  "../pages/user-operations/profile"
+import PaymentStatusPage from  "../pages/user-operations/payment-status"
 const routes = [
   {
     Component: CreateTemplate,
@@ -14,6 +15,11 @@ const routes = [
     Component: Profile,
     path: "/profile",
     isPrivate: true, // Private route, needs auth
+  },
+  {
+    Component: PaymentStatusPage,
+    path: "/payment-status",
+    isPrivate: true
   },
   {
     Component: Recharge,

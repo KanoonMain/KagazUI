@@ -11,12 +11,11 @@ import {
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosService from "../../services/axiosService";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { setUserData } from "../../store/slice/authSlice";
+// import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 
 export default function RechargePage() {
-  const dispatch = useAppDispatch();
-  const { email } = useAppSelector((state) => state.auth);
+  // const dispatch = useAppDispatch();
+  // const { email } = useAppSelector((state) => state.auth);
   const [amount, setAmount] = useState("");
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
@@ -27,6 +26,7 @@ export default function RechargePage() {
     message: "",
     severity: "success",
   });
+
   const navigate = useNavigate();
 
   const handleRecharge = async (e) => {
@@ -42,23 +42,30 @@ export default function RechargePage() {
       return;
     }
 
+    const amountValue = parseInt(amount, 10);
+    if (isNaN(amountValue) || amountValue <= 0) {
+      setSnackbar({
+        open: true,
+        message: "Please enter a valid amount",
+        severity: "warning",
+      });
+      return;
+    }
+
     try {
+      console.log("amountValue", amountValue)
       const response = await axiosService.processPostRequest(
         "http://localhost:5000/template/recharge",
-        { amount: parseInt(amount, 10) },
+        { amount: amountValue }
       );
-      if (response) {
-        setSnackbar({
-          open: true,
-          message: response.message || "Recharge successful",
-          severity: "success",
-        });
-        dispatch(setUserData({ email: email, credits: response.credits }));
-        setAmount("");
+      console.log(response)
+      if (response && response.payment_url) {
+        // Redirect user to PhonePe
+        window.location.href = response.payment_url;
       } else {
         setSnackbar({
           open: true,
-          message: response.message || "Recharge failed",
+          message: response?.message || "Recharge failed",
           severity: "error",
         });
       }
@@ -94,7 +101,7 @@ export default function RechargePage() {
               borderRadius: 2,
             }}
           >
-            Add Credits
+            Proceed to Pay
           </Button>
           <Button fullWidth sx={{ mt: 2 }} onClick={() => navigate("/")}>
             Back to Home
