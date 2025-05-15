@@ -35,7 +35,7 @@ import {
       const verifyPayment = async () => {
         try {
           const response = await axiosService.processGetRequest(
-            `http://localhost:5000/template/verify-payment/${transactionId}`
+            `https://kagaz.ruaaventures.com/api/template/verify-payment/${transactionId}`
           );
   
           if (response && response.credits !== undefined) {

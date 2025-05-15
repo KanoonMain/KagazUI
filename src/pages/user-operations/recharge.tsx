@@ -55,7 +55,7 @@ export default function RechargePage() {
     try {
       console.log("amountValue", amountValue)
       const response = await axiosService.processPostRequest(
-        "http://localhost:5000/template/recharge",
+        "https://kagaz.ruaaventures.com/api/template/recharge",
         { amount: amountValue }
       );
       console.log(response)

@@ -38,7 +38,7 @@ export default function SignUpPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/template/register", {
+      const res = await fetch("https://kagaz.ruaaventures.com/api/template/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

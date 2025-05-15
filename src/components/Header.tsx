@@ -23,7 +23,7 @@ const Header = () => {
       if (!token) return;
       try {
         const data = await axiosService.processGetRequest(
-          "http://localhost:5000/template/credits"
+          "https://kagaz.ruaaventures.com/api/template/credits"
         );
         dispatch(
           setUserData({ email: parseJwt(token).email, credits: data.credits })
