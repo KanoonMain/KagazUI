@@ -7,9 +7,14 @@ class AxiosService {
     headers =  {}
   ) {
     try {
+      const token = localStorage.getItem("authToken");
+      const headersData =  {
+        "Authorization": `Bearer ${token}`,
+        ...headers
+      } 
       const { data } = await axios.get(apiUrl, {
         params: params,
-        headers: headers,
+        headers: headersData,
         validateStatus: function (status: number) {
           return status >= 200 && status <= 500;
         },
@@ -26,8 +31,13 @@ class AxiosService {
     headers =  {},
   ) {
     try {
+      const token = localStorage.getItem("authToken");
+      const headersData =  {
+        "Authorization": `Bearer ${token}`,
+        ...headers
+      } 
       const resp = await axios.post(apiUrl, params, {
-        headers: headers,
+        headers: headersData,
         validateStatus: function (status: number) {
           return status >= 200 && status <= 500;
         },

@@ -1,6 +1,10 @@
-import MainPage from "../pages/Home";
-import CreateTemplate from "../pages/CreateTemplate"
-import AdminMain from "../pages/Admin/Main"
+import RegisterAuthenticate from "../pages/login-signup/register-authenticate";
+import CreateTemplate from "../pages/template-generator/create-template"
+import AdminMain from "../pages/admin-section/Main"
+import LandingPage from "../pages/landing-page/LandingPage"
+import Recharge from "../pages/user-operations/recharge"
+import Profile from  "../pages/user-operations/profile"
+import PaymentStatusPage from  "../pages/user-operations/payment-status"
 const routes = [
   {
     Component: CreateTemplate,
@@ -8,13 +12,32 @@ const routes = [
     isPrivate: true, // Private route, needs auth
   },
   {
-    Component: MainPage,
-    path: "/",
-    isPrivate: false,
-
+    Component: Profile,
+    path: "/profile",
+    isPrivate: true, // Private route, needs auth
   },
   {
-    Component: MainPage,
+    Component: PaymentStatusPage,
+    path: "/payment-status",
+    isPrivate: true
+  },
+  {
+    Component: Recharge,
+    path: "/recharge",
+    isPrivate: true, // Private route, needs auth
+  },
+  {
+    Component: LandingPage,
+    path: "/",
+    isPrivate: false,
+  },
+  {
+    Component: RegisterAuthenticate,
+    path: "/signin",
+    isPrivate: false,
+  },
+  {
+    Component: RegisterAuthenticate,
     path: "/signup",
     isPrivate: false,
   },
